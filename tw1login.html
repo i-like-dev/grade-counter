@@ -55,7 +55,18 @@
             padding: 5px 10px;
             text-decoration: none;
             border-radius: 5px;
+            
         }
+         .download1 {
+            position: absolute;
+            top: 25px;
+            right: 20px;
+            background-color: #444;
+            color: white;
+            padding: 5px 10px;
+            text-decoration: none;
+            border-radius: 5px;
+            
     </style>
 </head>
 <body>
@@ -63,6 +74,7 @@
     <br>
     <br>
     <a href="index.html" class="logout">登出</a>
+    <a href="example-grade.csv" class="download1" download>下載範例檔案</a>
     <div class="container">
         <input type="file" id="csvFile" accept=".csv" />
         <button onclick="processFile()">上傳並計算</button>
