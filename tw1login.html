@@ -101,7 +101,7 @@
 
     function populateSelector() {
         var selector = document.getElementById('studentSelector');
-        selector.innerHTML = '<option value="">選擇學生</option>';
+        selector.innerHTML = '<option value=""請選擇一名學生</option>';
         studentsData.forEach(function(row, index) {
             selector.innerHTML += '<option value="' + index + '">座號: ' + row[0] + '</option>';
         });
