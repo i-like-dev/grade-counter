@@ -6,40 +6,30 @@
     <style>
         body {
             font-family: Arial, sans-serif;
-            background: linear-gradient(to right, #6e48aa, #9d50bb);
-            color: white;
+            background-color: #f4f4f4;
             text-align: center;
             padding: 20px;
         }
 
         .container {
-            background-color: #222;
+            background-color: #fff;
             padding: 20px;
             border-radius: 5px;
+            box-shadow: 0px 0px 10px 0px #000;
             margin: auto;
-            width: 60%;
+            width: 50%;
         }
 
         input[type=file], button, select {
             margin-top: 10px;
             padding: 10px;
             border-radius: 5px;
-            border: none;
+            border: 1px solid #ddd;
             cursor: pointer;
-            background-color: #574b90;
-            color: white;
-            font-size: 16px;
         }
 
-        #output, #exampleCSV, #studentInfo {
+        #output, #selectedStudent {
             margin-top: 20px;
-        }
-
-        .student {
-            background-color: #333;
-            padding: 10px;
-            margin-top: 10px;
-            border-radius: 5px;
         }
 
         .logout {
@@ -58,57 +48,61 @@
     <a href="index.html" class="logout">登出</a>
     <div class="container">
         <input type="file" id="csvFile" accept=".csv" />
-        <button onclick="handleFiles()">上傳並計算</button>
-        <select id="studentSelector" onchange="displayStudentInfo()">
-            <option value="">選擇一位學生</option>
+        <button onclick="processFile()">上傳並計算</button>
+        <button onclick="downloadResults()">下載結果</button>
+        <br><br>
+        <select id="studentSelector" onchange="showSelectedStudent()">
+            <option value="">選擇學生</option>
         </select>
-        <div id="studentInfo"></div>
-        <div id="exampleCSV">範例 CSV 格式: 座號, 筆試, 口試<br>1, 78, 82<br>2, 85, 88</div>
+        <div id="selectedStudent"></div>
+        <div id="output"></div>
     </div>
 
     <script>
         var studentsData = [];
 
-        function handleFiles() {
+        function processFile() {
             var file = document.getElementById('csvFile').files[0];
             Papa.parse(file, {
                 complete: function(results) {
                     studentsData = results.data;
-                    populateStudentSelector(studentsData);
+                    populateSelector();
                 }
             });
         }
 
-        function populateStudentSelector(data) {
+        function populateSelector() {
             var selector = document.getElementById('studentSelector');
-            selector.innerHTML = '<option value="">選擇一位學生</option>';
-            data.forEach(function(row, index) {
-                if (row.length >= 3) {
-                    var option = document.createElement('option');
-                    option.value = index;
-                    option.text = '座號: ' + row[0];
-                    selector.appendChild(option);
+            selector.innerHTML = '<option value="">選擇學生</option>';
+            studentsData.forEach(function(row, index) {
+                if (row.length >= 3 && !isNaN(row[1]) && !isNaN(row[2])) {
+                    selector.innerHTML += '<option value="' + index + '">座號: ' + row[0] + '</option>';
                 }
             });
         }
 
-        function displayStudentInfo() {
+        function showSelectedStudent() {
             var selectedIndex = document.getElementById('studentSelector').value;
-            var infoDiv = document.getElementById('studentInfo');
+            var displayDiv = document.getElementById('selectedStudent');
             if (selectedIndex !== '') {
                 var selectedStudent = studentsData[selectedIndex];
                 var total = parseFloat(selectedStudent[1]) + parseFloat(selectedStudent[2]);
                 var average = total / 2;
-                infoDiv.innerHTML = '<div class="student">' +
-                                    '座號: ' + selectedStudent[0] + '<br>' +
-                                    '筆試: ' + selectedStudent[1] + '<br>' +
-                                    '口試: ' + selectedStudent[2] + '<br>' +
-                                    '總分: ' + total.toFixed(2) + '<br>' +
-                                    '平均分: ' + average.toFixed(2) +
-                                    '</div>';
+                displayDiv.innerHTML = '座號: ' + selectedStudent[0] + '<br>筆試: ' + selectedStudent[1] + '<br>口試: ' + selectedStudent[2] + '<br>總分: ' + total.toFixed(2) + '<br>平均分: ' + average.toFixed(2);
             } else {
-                infoDiv.innerHTML = '';
+                displayDiv.innerHTML = '';
             }
+        }
+
+        function downloadResults() {
+            var data = studentsData.map(function(row) {
+                return row.join(',');
+            }).join('\n');
+            var blob = new Blob([data], { type: 'text/csv;charset=utf-8;' });
+            var link = document.createElement('a');
+            link.href = URL.createObjectURL(blob);
+            link.download = 'results.csv';
+            link.click();
         }
     </script>
 </body>
