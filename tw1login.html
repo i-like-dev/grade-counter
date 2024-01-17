@@ -60,81 +60,78 @@
         <div id="selectedStudent"></div>
         <div id="output"></div>
     </div>
+<script>
+    var studentsData = [];
 
-    <script>
-        var studentsData = [];
-
-        function processFile() {
-            var file = document.getElementById('csvFile').files[0];
-            Papa.parse(file, {
-                complete: function(results) {
-                    studentsData = results.data;
-                    calculateScores();
-                    populateSelector();
-                    displayAllResults();
-                }
-            });
-        }
-
-        function calculateScores() {
-            studentsData.forEach(function(row) {
-                if (row.length >= 3 && !isNaN(row[1]) && !isNaN(row[2])) {
-                    var total = parseFloat(row[1]) + parseFloat(row[2]);
-                    var average = total / 2;
-                    row.push(total.toFixed(2), average.toFixed(2));
-                }
-            });
-        }
-
-        function populateSelector() {
-            var selector = document.getElementById('studentSelector');
-            selector.innerHTML = '<option value="">選擇學生</option>';
-            studentsData.forEach(function(row, index) {
-                if (row.length >= 5) {
-                    selector.innerHTML += '<option value="' + index + '">座號: ' + row[0] + '</option>';
-                }
-            });
-        }
-
-        function showSelectedStudent() {
-            var selectedIndex = document.getElementById('studentSelector').value;
-            var displayDiv = document.getElementById('selectedStudent');
-            if (selectedIndex !== '') {
-                var selectedStudent = studentsData[selectedIndex];
-                displayDiv.innerHTML = '座號: ' + selectedStudent[0] +
-                                       '<br>筆試: ' + selectedStudent[1] +
-                                       '<br>口試: ' + selectedStudent[2] +
-                                       '<br>總分: ' + selectedStudent[3] +
-                                       '<br>平均分: ' + selectedStudent[4];
-            } else {
-                displayDiv.innerHTML = '';
+    function processFile() {
+        var file = document.getElementById('csvFile').files[0];
+        Papa.parse(file, {
+            complete: function(results) {
+                studentsData = results.data;
+                calculateScores();
+                populateSelector();
+                displayAllResults();
             }
-        }
+        });
+    }
 
-        function displayAllResults() {
-            var outputDiv = document.getElementById('output');
-            outputDiv.innerHTML = '';
-            studentsData.forEach(function(row) {
-                if (row.length >= 5) {
-                    outputDiv.innerHTML += '座號: ' + row[0] +
-                                           ', 筆試: ' + row[1] +
-                                           ', 口試: ' + row[2] +
-                                           ', 總分: ' + row[3] +
-                                           ', 平均分: ' + row[4] + '<br>';
-                }
-            });
-        }
+    function calculateScores() {
+        // Filter out empty rows and calculate total and average for each student
+        studentsData = studentsData.map(function(row) {
+            if (row.length > 2 && !isNaN(row[1]) && !isNaN(row[2])) {
+                var total = parseFloat(row[1]) + parseFloat(row[2]);
+                var average = total / 2;
+                return [row[0], row[1], row[2], total.toFixed(2), average.toFixed(2)];
+            }
+            return null;
+        }).filter(function(row) { return row; });
+    }
 
-        function downloadResults() {
-            var data = studentsData.map(function(row) {
-                return row.join(',');
-            }).join('\n');
-            var blob = new Blob([data], { type: 'text/csv;charset=utf-8;' });
-            var link = document.createElement('a');
-            link.href = URL.createObjectURL(blob);
-            link.download = 'student_scores.csv';
-            link.click();
+    function populateSelector() {
+        var selector = document.getElementById('studentSelector');
+        selector.innerHTML = '<option value="">選擇學生</option>';
+        studentsData.forEach(function(row, index) {
+            selector.innerHTML += '<option value="' + index + '">座號: ' + row[0] + '</option>';
+        });
+    }
+
+    function showSelectedStudent() {
+        var selectedIndex = document.getElementById('studentSelector').value;
+        var displayDiv = document.getElementById('selectedStudent');
+        if (selectedIndex !== '') {
+            var selectedStudent = studentsData[selectedIndex];
+            displayDiv.innerHTML = '座號: ' + selectedStudent[0] +
+                                   '<br>筆試: ' + selectedStudent[1] +
+                                   '<br>口試: ' + selectedStudent[2] +
+                                   '<br>總分: ' + selectedStudent[3] +
+                                   '<br>平均分: ' + selectedStudent[4];
+        } else {
+            displayDiv.innerHTML = '';
         }
-    </script>
+    }
+
+    function displayAllResults() {
+        var outputDiv = document.getElementById('output');
+        outputDiv.innerHTML = '';
+        studentsData.forEach(function(row) {
+            outputDiv.innerHTML += '座號: ' + row[0] +
+                                   ', 筆試: ' + row[1] +
+                                   ', 口試: ' + row[2] +
+                                   ', 總分: ' + row[3] +
+                                   ', 平均分: ' + row[4] + '<br>';
+        });
+    }
+
+    function downloadResults() {
+        var data = "座號,筆試,口試,總分,平均分\n" + studentsData.map(function(row) {
+            return row.join(',');
+        }).join('\n');
+        var blob = new Blob([data], { type: 'text/csv;charset=utf-8;' });
+        var link = document.createElement('a');
+        link.href = URL.createObjectURL(blob);
+        link.download = 'student_scores.csv';
+        link.click();
+    }
+</script>
 </body>
 </html>
