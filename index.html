@@ -78,13 +78,13 @@
     <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-firestore.js"></script>
     <script>
         var firebaseConfig = {
-            apiKey: "您的 API 金鑰",
-            authDomain: "您的 Auth 域",
-            projectId: "您的專案 ID",
-            storageBucket: "您的 Storage Bucket",
-            messagingSenderId: "您的 Messaging Sender ID",
-            appId: "您的應用程式 ID"
-        };
+    apiKey: "AIzaSyD08rT64fv1HuqMOjjt7LIHtcFKbjNuYws",
+    authDomain: "login-374fb.firebaseapp.com",
+    projectId: "login-374fb",
+    storageBucket: "login-374fb.appspot.com",
+    messagingSenderId: "206371143556",
+    appId: "1:206371143556:web:0ce7151d090b3df6d5a7d1"
+};
 
         // 初始化 Firebase
         firebase.initializeApp(firebaseConfig);
@@ -107,7 +107,7 @@
                 // 用戶成功登入後執行的操作
                 alert("登入成功，帳號：" + userCredential.user.email); // 顯示帳號電子郵件
                 // 可以在此處保存用戶帳號
-                window.location.href = "index.html"; // 將用戶重定向到 index.html 頁面
+                window.location.href = "twlogin.html"; // 將用戶重定向到 index.html 頁面
             }).catch(error => {
                 // 處理登入錯誤
                 console.error(error.message);
