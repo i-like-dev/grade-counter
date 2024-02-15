@@ -1,121 +1,146 @@
-
 <!DOCTYPE html>
-<html lang="en">
+<html lang="zh-Hant">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>成績自動計算系統</title>
-        <link rel="manifest" href="manifest.json">
+    <title>登入</title>
     <style>
         body {
             font-family: Arial, sans-serif;
-            text-align: center;
-            margin: 50px;
-            background-color: #fff; /* 白色背景 */
-            color: #0a2849; /* 深藍色 */
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 0;
         }
-        h1 {
-            margin-bottom: 20px;
-        }
-        .login-container {
+
+        .container {
+            max-width: 400px;
+            margin: 50px auto;
             padding: 20px;
-            max-width: 300px;
-            margin: 0 auto;
-            background-color: #fff; /* 白色背景 */
-            border-radius: 10px;
-            /* 新增格子縮小2公分 */
-            padding: 18px;
-            /* 移除背後陰影 */
-            box-shadow: none;
-        }
-        input {
-            padding: 10px;
-            margin: 10px;
-            width: 100%;
-            border: none;
+            border: 1px solid #ccc;
             border-radius: 5px;
-            background-color: rgba(0, 0, 0, 0.1); /* 淺藍色背景 */
-            transition: background-color 0.3s ease;
-            /* 新增文字置中 */
-            text-align: center;
+            background-color: #fff;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
         }
-        input:focus {
-            background-color: rgba(0, 0, 0, 0.2); /* 較深的淺藍色背景 */
+
+        h2 {
+            margin-top: 0;
+            font-size: 24px;
+            color: #333;
         }
+
+        input {
+            margin: 10px 0;
+            padding: 10px;
+            width: 100%;
+            box-sizing: border-box;
+            border: 1px solid #ccc;
+            border-radius: 3px;
+            font-size: 16px;
+        }
+
         button {
-            padding: 10px 20px;
-            background-color: #1a759f; /* 深藍色 */
+            margin: 10px 0;
+            padding: 10px;
+            width: 100%;
+            box-sizing: border-box;
+            background-color: #007bff;
             color: #fff;
             border: none;
-            border-radius: 5px;
+            border-radius: 3px;
             cursor: pointer;
-            width: 100%;
-            transition: background-color 0.3s ease;
+            font-size: 16px;
         }
+
         button:hover {
-            background-color: #13577d; /* 深藍色懸停效果 */
+            background-color: #0056b3;
         }
-        .error-message {
-            color: red;
-            margin-top: 10px;
-        }
-        .time-container {
-            margin-top: 20px;
+
+        p {
+            font-size: 14px;
+            color: #888;
         }
     </style>
 </head>
 <body>
-    <div class="login-container">
-        <h2>成績自動計算系統 登入</h2>
-        <p>您可使用帳密或者是Line登入
-        </p>
-        <form id="loginForm">
-            <label for="username">帳號:</label>
-            <input type="text" id="username" required>
-            <br>
-            <label for="password">密碼:</label>
-            <input type="password" id="password" required>
-<br>
-            <button type="submit">登入</button>
-            <br>
-            <br>
-            <input type="button" value="使用Line登入（推薦）" onclick="location.href='https://access.line.me/oauth2/v2.1/authorize?response_type=code&client_id=2002879445&redirect_uri=https://i-like-dev.github.io/grade-counter/tw1login.html&state=12345abcde&scope=openid%20profile%20email&nonce=09876xyz'">
-        </form>
-        <div class="error-message" id="errorMessage"></div>
+    <div class="container">
+        <h2>登入成績計算系統</h2>
+        <p>請登入後再操作，若忘記密碼，請投信到 taiwan@walking-cat.com</p>
+        <p>此登入服務為：WlkCt 1 站點</p>
+        <input type="email" id="email" placeholder="電子郵件">
+        <input type="password" id="password" placeholder="密碼">
+        <button id="loginButton">登入</button>
+        <button id="registerButton">註冊</button>
     </div>
 
-    <div class="time-container">
-        <p>現在時間：<span id="currentTime"></span></p>
-    </div>
-    
+    <!-- Firebase CDN -->
+    <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-firestore.js"></script>
     <script>
-        // 取得時間，並更新現在時間的顯示
-        function updateTime() {
-            const now = new Date();
-            const hours = now.getHours().toString().padStart(2, '0');
-            const minutes = now.getMinutes().toString().padStart(2, '0');
-            const seconds = now.getSeconds().toString().padStart(2, '0');
-            document.getElementById("currentTime").textContent = `${hours}:${minutes}:${seconds}`;
-        }
+        var firebaseConfig = {
+            apiKey: "您的 API 金鑰",
+            authDomain: "您的 Auth 域",
+            projectId: "您的專案 ID",
+            storageBucket: "您的 Storage Bucket",
+            messagingSenderId: "您的 Messaging Sender ID",
+            appId: "您的應用程式 ID"
+        };
 
-        // 初始化時間，並每秒更新一次
-        updateTime();
-        setInterval(updateTime, 1000);
+        // 初始化 Firebase
+        firebase.initializeApp(firebaseConfig);
 
-        document.getElementById("loginForm").addEventListener("submit", function(event) {
-            event.preventDefault();
-            const username = document.getElementById("username").value;
-            const password = document.getElementById("password").value;
-            const errorMessage = document.getElementById("errorMessage");
+        // 獲取登入按鈕和註冊按鈕
+        const loginButton = document.getElementById('loginButton');
+        const registerButton = document.getElementById('registerButton');
 
-            // 在這裡可以進行帳號密碼的驗證
+        // 添加點擊事件監聽器 - 登入
+        loginButton.addEventListener('click', () => {
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
 
-            // 簡單示範，假設帳號密碼都是 "user"
-            if (username === "tmps112" && password === "tmps112") {
-                window.location.href = "tw1login.html"; // 登入成功後導向的頁面
-            } else {
-                errorMessage.textContent = "帳號或密碼錯誤";
-            }
+            // 使用 Firebase 的身份驗證服務
+            const auth = firebase.auth();
+            
+            // 登入
+            const promise = auth.signInWithEmailAndPassword(email, password);
+            promise.then(userCredential => {
+                // 用戶成功登入後執行的操作
+                alert("登入成功，帳號：" + userCredential.user.email); // 顯示帳號電子郵件
+                // 可以在此處保存用戶帳號
+                window.location.href = "index.html"; // 將用戶重定向到 index.html 頁面
+            }).catch(error => {
+                // 處理登入錯誤
+                console.error(error.message);
+            });
+        });
+
+        // 添加點擊事件監聽器 - 註冊
+        registerButton.addEventListener('click', () => {
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+
+            // 使用 Firebase 的身份驗證服務
+            const auth = firebase.auth();
+            
+            // 註冊
+            const promise = auth.createUserWithEmailAndPassword(email, password);
+            promise.then(userCredential => {
+                // 用戶成功註冊後執行的操作
+                alert("註冊成功，帳號：" + userCredential.user.email); // 顯示帳號電子郵件
+                // 自動重新登入
+                const loginPromise = auth.signInWithEmailAndPassword(email, password);
+                loginPromise.then(userCredential => {
+                    // 重新登入成功後執行的操作
+                    // 可以在此處保存用戶帳號
+                    window.location.href = "index.html"; // 將用戶重定向到 index.html 頁面
+                }).catch(error => {
+                    // 處理重新登入錯誤
+                    console.error(error.message);
+                });
+            }).catch(error => {
+                // 處理註冊錯誤
+                console.error(error.message);
+            });
         });
     </script>
 </body>
